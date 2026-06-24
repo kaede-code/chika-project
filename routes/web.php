@@ -20,28 +20,38 @@ Route::get('/', function () {
         return redirect('/login');
     }
 
-    return Auth::user()->role === 'admin'
+    $role = Auth::user()->role;
+    return in_array($role, ['admin', 'master_admin'])
         ? redirect('/admin/dashboard')
         : redirect('/customer/menu');
 });
 
 
 Route::get('/menu', function () {
-    return Auth::check()
-        ? (Auth::user()->role === 'admin' ? redirect('/admin/dashboard') : redirect('/customer/menu'))
-        : redirect('/login');
+    if (!Auth::check()) {
+        return redirect('/login');
+    }
+    return in_array(Auth::user()->role, ['admin', 'master_admin'])
+        ? redirect('/admin/dashboard')
+        : redirect('/customer/menu');
 });
 
 
 Route::get('/dashboard', function () {
-    return Auth::check() && Auth::user()->role === 'admin'
+    if (!Auth::check()) {
+        return redirect('/login');
+    }
+    return in_array(Auth::user()->role, ['admin', 'master_admin'])
         ? redirect('/admin/dashboard')
         : redirect('/customer/menu');
 });
 
 
 Route::get('/riwayat', function () {
-    return Auth::check() && Auth::user()->role === 'customer'
+    if (!Auth::check()) {
+        return redirect('/login');
+    }
+    return Auth::user()->role === 'customer'
         ? redirect('/customer/riwayat')
         : redirect('/admin/orders');
 });
@@ -51,7 +61,7 @@ Route::get('/profile', function () {
         return redirect('/login');
     }
 
-    return Auth::user()->role === 'admin'
+    return in_array(Auth::user()->role, ['admin', 'master_admin'])
         ? redirect('/admin/profile')
         : redirect('/customer/profile');
 });
@@ -113,6 +123,7 @@ Route::middleware(['auth', 'role:admin,master_admin'])->prefix('admin')->group(f
     ]);
 
     Route::get('/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
+    Route::post('/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
 
     Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
         ->name('admin.orders.update-status');
@@ -120,8 +131,9 @@ Route::middleware(['auth', 'role:admin,master_admin'])->prefix('admin')->group(f
 
 Route::middleware(['auth', 'role:master_admin'])->prefix('admin')->group(function () {
     Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('admin.users');
-    Route::post('/users/{user}/role', [\App\Http\Controllers\Admin\AdminUserController::class, 'updateRole'])->name('admin.users.role');
-    Route::post('/users/{user}/password', [\App\Http\Controllers\Admin\AdminUserController::class, 'updatePassword'])->name('admin.users.password');
+    Route::get('/users/{user}/edit', [\App\Http\Controllers\Admin\AdminUserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/users/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{user}', [\App\Http\Controllers\Admin\AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
 

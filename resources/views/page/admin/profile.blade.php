@@ -17,7 +17,7 @@
     <div class="alert-box" style="margin-bottom:12px;">{{ session('success') }}</div>
 @endif
 
-<div class="profile-card" style="padding:14px; margin-bottom:14px;">
+<div class="profile-card" style="padding:14px; margin-bottom:14px;" id="profileHeader">
     <div style="display:flex; align-items:center; gap:12px;">
         @php($avatarUrl = $user->avatar ? asset('storage/' . $user->avatar) : null)
         @if($avatarUrl)
@@ -27,13 +27,17 @@
         @endif
         <div>
             <div style="font-weight:900; font-size:15px;">{{ $user->name }}</div>
-            <div style="font-weight:800; font-size:12px; color:rgba(30,41,59,.5);">{{ $roleLabel }}</div>
+            <div style="font-weight:800; font-size:13px; color:rgba(30,41,59,.6);">{{ $user->no_hp ?? '-' }}</div>
+            <div style="font-weight:800; font-size:11px; color:rgba(30,41,59,.45);">{{ $roleLabel }}</div>
         </div>
     </div>
 </div>
 
-<div style="display:flex; flex-direction:column; gap:8px;" id="adminProfileMenu">
-    <button class="profile-menu-btn" onclick="showAdminForm()">🏦 Pusat Admin</button>
+<div style="display:flex; flex-direction:column; gap:8px;" id="profileMenu">
+    <button class="profile-menu-btn" onclick="showForm()">🏦 Pusat Akun</button>
+    @if($user->role === 'master_admin')
+        <a href="{{ route('admin.users') }}" class="profile-menu-btn" style="text-decoration:none;">👥 Kelola User</a>
+    @endif
     <button class="profile-menu-btn" onclick="alert('Fitur belum tersedia')">⚙️ Pengaturan</button>
     <button class="profile-menu-btn" onclick="alert('Fitur belum tersedia')">📄 Kebijakan</button>
     <form method="POST" action="{{ url('/logout') }}" style="margin:0;">
@@ -42,31 +46,31 @@
     </form>
 </div>
 
-{{-- Pusat Admin (read-only) --}}
-<div id="adminForm" style="display:none;">
+<div id="editForm" style="display:none;">
     <div class="profile-card" style="padding:14px;">
-        <h3 class="profile-title" style="margin:0 0 14px; font-size:16px;">Data Admin</h3>
+        <h3 class="profile-title" style="margin:0 0 14px; font-size:16px;">Edit Data Diri</h3>
 
-        <div class="profile-row">
-            <div class="profile-label">Nama</div>
-            <div class="profile-value">{{ $user->name }}</div>
-        </div>
-        <div class="profile-row" style="border-bottom:none;">
-            <div class="profile-label">Nomor HP</div>
-            <div class="profile-value">{{ $user->no_hp ?? '-' }}</div>
-        </div>
+        <form method="POST" action="{{ route('admin.profile.update') }}">
+            @csrf
 
-        <div style="margin-top:14px;">
-            <button type="button" class="btn btn-accent btn-full" onclick="hideAdminForm()">← Kembali</button>
-        </div>
+            <div class="field">
+                <label for="name" class="field-label">Nama</label>
+                <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}" required maxlength="255" />
+                @error('name')<div class="field-error">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="field" style="margin-top:12px;">
+                <label for="no_hp" class="field-label">No HP</label>
+                <input id="no_hp" name="no_hp" type="text" value="{{ old('no_hp', $user->no_hp) }}" required maxlength="30" />
+                @error('no_hp')<div class="field-error">{{ $message }}</div>@enderror
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:14px;">
+                <button type="submit" class="btn btn-primary" style="flex:1;">Simpan</button>
+                <button type="button" class="btn btn-accent" style="flex:1;" onclick="hideForm()">Batal</button>
+            </div>
+        </form>
     </div>
-
-    @if($user->role === 'master_admin')
-        <div class="profile-card" style="padding:14px; margin-top:12px;">
-            <h3 class="profile-title" style="margin:0 0 12px; font-size:16px;">Manajemen Akun</h3>
-            <a href="{{ route('admin.users') }}" class="btn btn-primary btn-full">👥 Kelola Pengguna</a>
-        </div>
-    @endif
 </div>
 
 <style>
@@ -96,13 +100,15 @@
 </style>
 
 <script>
-function showAdminForm() {
-    document.getElementById('adminProfileMenu').style.display = 'none';
-    document.getElementById('adminForm').style.display = 'block';
+function showForm() {
+    document.getElementById('profileHeader').style.display = 'none';
+    document.getElementById('profileMenu').style.display = 'none';
+    document.getElementById('editForm').style.display = 'block';
 }
-function hideAdminForm() {
-    document.getElementById('adminProfileMenu').style.display = 'flex';
-    document.getElementById('adminForm').style.display = 'none';
+function hideForm() {
+    document.getElementById('profileHeader').style.display = 'block';
+    document.getElementById('profileMenu').style.display = 'flex';
+    document.getElementById('editForm').style.display = 'none';
 }
 </script>
 

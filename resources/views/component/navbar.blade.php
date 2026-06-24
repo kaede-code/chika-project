@@ -24,11 +24,6 @@
         <a href="/admin/orders" class="nav-item {{ request()->is('admin/orders') ? 'act' : '' }}">
             <span>📋</span><p>Aktivitas</p>
         </a>
-        @if($role === 'master_admin')
-            <a href="/admin/users" class="nav-item {{ request()->is('admin/users') ? 'act' : '' }}">
-                <span>👥</span><p>Users</p>
-            </a>
-        @endif
         <a href="/admin/profile" class="nav-item {{ request()->is('admin/profile') ? 'act' : '' }}">
             <span>👤</span><p>Profile</p>
         </a>

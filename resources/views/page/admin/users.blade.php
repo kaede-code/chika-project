@@ -2,7 +2,7 @@
 
 @section('content')
 
-<div class="ttl">Manajemen Akun</div>
+<div class="ttl">Kelola User</div>
 
 @if (session('success'))
     <div class="alert-box" style="margin-bottom:12px;">{{ session('success') }}</div>
@@ -37,32 +37,16 @@
                             <div style="font-weight:800; font-size:12px; color:rgba(30,41,59,.5);">{{ $user->no_hp ?? '-' }}</div>
                         </div>
                         <span class="{{ $roleBadge }}">{{ $roleLabel }}</span>
-                    </div>
-
-                    <hr style="border:none; border-top:1px solid rgba(0,0,0,.06); margin:10px 0;" />
-
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <form method="POST" action="{{ route('admin.users.role', $user->id) }}" style="display:flex; gap:8px; align-items:center;">
-                            @csrf
-                            <select name="role" style="flex:1; padding:8px 10px; border-radius:10px; border:1px solid rgba(2,6,23,.12); font-weight:800; font-size:13px;">
-                                <option value="master_admin" {{ $user->role === 'master_admin' ? 'selected' : '' }}>Master Admin</option>
-                                <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="customer" {{ $user->role === 'customer' ? 'selected' : '' }}>Customer</option>
-                            </select>
-                            <button type="submit" class="btn btn-primary" style="min-height:36px; padding:0 12px; font-size:12px;">Simpan</button>
-                        </form>
-
-                        <form method="POST" action="{{ route('admin.users.password', $user->id) }}" style="display:flex; gap:8px; align-items:center;">
-                            @csrf
-                            <input type="password" name="password" placeholder="Password baru" required minlength="6" style="flex:1; padding:8px 10px; border-radius:10px; border:1px solid rgba(2,6,23,.12); font-weight:800; font-size:13px;" />
-                            <input type="password" name="password_confirmation" placeholder="Konfirmasi" required minlength="6" style="flex:1; padding:8px 10px; border-radius:10px; border:1px solid rgba(2,6,23,.12); font-weight:800; font-size:13px;" />
-                            <button type="submit" class="btn btn-accent" style="min-height:36px; padding:0 12px; font-size:12px;">Ganti</button>
-                        </form>
+                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary" style="min-height:36px; padding:0 14px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center;">Edit</a>
                     </div>
                 </div>
             @endforeach
         </div>
     @endif
+
+    <div style="padding:14px;">
+        {{ $users->links() }}
+    </div>
 </div>
 
 <style>
